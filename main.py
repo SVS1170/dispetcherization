@@ -5,6 +5,26 @@ import textwrap
 
 from aiohttp import web
 
+def crc16(data):
+        crc = 0xFFFF
+        l = len(data)
+        i = 0
+        while i < l:
+            j = 0
+            crc = crc ^ data[i]
+            while j < 8:
+                if (crc & 0x1):
+                    mask = 0xA001
+                else:
+                    mask = 0x00
+                crc = ((crc >> 1) & 0x7FFF) ^ mask
+                j += 1
+            i += 1
+        if crc < 0:
+            crc -= 256
+        result = data + chr(crc % 256).encode('latin-1') + chr(crc // 256).encode('latin-1')
+        return result
+
 
 async def intro(request: web.Request) -> web.StreamResponse:
     txt = textwrap.dedent(
@@ -39,10 +59,24 @@ async def change_body(request: web.Request) -> web.StreamResponse:
 async def hello(request: web.Request) -> web.StreamResponse:
     resp = web.StreamResponse()
     name = request.match_info.get("name", "Anonymous")
-    answer = ("Hello, " + name).encode("utf8")
+    answer = ("recieved" + name).encode("utf8")
     resp.content_length = len(answer)
     resp.content_type = "text/plain"
     print("state=",name)
+    await resp.prepare(request)
+    await resp.write(answer)
+    await resp.write_eof()
+    return resp
+
+async def input(request: web.Request) -> web.StreamResponse:
+    resp = web.StreamResponse()
+    name = request.match_info.get("name")
+    b = str.encode(name)
+    crc = crc16(b)
+    answer = ("recieved " + name + " " + str(crc)).encode("utf8")
+    resp.content_length = len(answer)
+    resp.content_type = "text/plain"
+    print("state=", name, str(crc))
     await resp.prepare(request)
     await resp.write(answer)
     await resp.write_eof()
@@ -54,8 +88,8 @@ def init() -> web.Application:
     app.router.add_get("/", intro)
     app.router.add_get("/simple", simple)
     app.router.add_get("/change_body", change_body)
-    app.router.add_get("/input/{name}", hello)
-    app.router.add_get("/input", hello)
+    app.router.add_get("/input/{name}", input)
+    app.router.add_get("/input", input)
     return app
 
 
