@@ -94,7 +94,8 @@ async def output(request: web.Request) -> web.StreamResponse:
     for i in range(lena):
         e = a[1 - i].split(':')
         print(e)
-    answer = (a[0][1]).encode("utf8")
+    d = a[1].split(':')
+    answer = (d[1]).encode("utf8")
     resp.content_length = len(answer)
     resp.content_type = "text/plain"
     # print("state=", name, str(crc))
