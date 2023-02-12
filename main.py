@@ -97,7 +97,7 @@ async def output(request: web.Request) -> web.StreamResponse:
     answer = ("recieved " + name + " " + str(crc)).encode("utf8")
     resp.content_length = len(answer)
     resp.content_type = "text/plain"
-    print("state=", name, str(crc))
+    # print("state=", name, str(crc))
     await resp.prepare(request)
     await resp.write(answer)
     await resp.write_eof()
