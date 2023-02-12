@@ -82,6 +82,20 @@ async def input(request: web.Request) -> web.StreamResponse:
     await resp.write_eof()
     return resp
 
+async def output(request: web.Request) -> web.StreamResponse:
+    resp = web.StreamResponse()
+    name = request.match_info.get("name")
+    b = str.encode(name)
+    crc = crc16(b)
+    answer = ("recieved " + name + " " + str(crc)).encode("utf8")
+    resp.content_length = len(answer)
+    resp.content_type = "text/plain"
+    print("state=", name, str(crc))
+    await resp.prepare(request)
+    await resp.write(answer)
+    await resp.write_eof()
+    return resp
+
 
 def init() -> web.Application:
     app = web.Application()
@@ -89,7 +103,9 @@ def init() -> web.Application:
     app.router.add_get("/simple", simple)
     app.router.add_get("/change_body", change_body)
     app.router.add_get("/input/{name}", input)
-    app.router.add_get("/input", input)
+    app.router.add_get("/input", output)
+    app.router.add_get("/output/{name}", output)
+    app.router.add_get("/output", output)
     return app
 
 
