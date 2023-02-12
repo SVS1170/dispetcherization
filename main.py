@@ -87,6 +87,13 @@ async def output(request: web.Request) -> web.StreamResponse:
     name = request.match_info.get("name")
     b = str.encode(name)
     crc = crc16(b)
+    string = name
+    a = string.split(',')
+    # print(a)
+    lena = len(a)
+    for i in range(lena):
+        e = a[1 - i].split(':')
+        print(e)
     answer = ("recieved " + name + " " + str(crc)).encode("utf8")
     resp.content_length = len(answer)
     resp.content_type = "text/plain"
