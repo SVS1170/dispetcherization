@@ -88,14 +88,14 @@ async def output(request: web.Request) -> web.StreamResponse:
     b = str.encode(name)
     crc = crc16(b)
     string = name
-    a = string.split(',')
-    # print(a)
-    lena = len(a)
-    for i in range(lena):
-        e = a[1 - i].split(':')
-        print(e)
-    d = a[1].split(':')
-    answer = (d[1]).encode("utf8")
+    # a = string.split(',')
+    # # print(a)
+    # lena = len(a)
+    # for i in range(lena):
+    #     e = a[1 - i].split(':')
+    #     print(e)
+    # d = a[1].split(':')
+    answer = ("000001,255,255,00").encode("utf8")
     resp.content_length = len(answer)
     resp.content_type = "text/plain"
     # print("state=", name, str(crc))
