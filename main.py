@@ -81,7 +81,6 @@ async def input(request: web.Request) -> web.StreamResponse:
     await resp.write_eof()
     return resp
 
-
 async def output(request: web.Request) -> web.StreamResponse:
     resp = web.StreamResponse()
     name = request.match_info.get("name")
